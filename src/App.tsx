@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
 import { ArrowRight, Bell, Check, ChevronDown, Clapperboard, Facebook, Film, Instagram, Menu, Play, Search, Youtube, X } from 'lucide-react'
-import { getVideos, youtubeEmbedUrl, youtubeWatchUrl, type PublicVideo } from './lib/youtube'
+import { getVideos, youtubeEmbedUrl, youtubeWatchUrl, type PublicVideo } from './lib/youtube'\nimport AuthControls from './components/AuthControls'
 
 type Language = 'EN' | 'አማ'
 type Video = { id: number; youtubeId?: string; title: string; category: string; views: string; age: string; image: string; duration: string; featured?: boolean }
@@ -67,7 +67,7 @@ function App() {
       <header className="topbar">
         <a className="brand" href="#home" aria-label="ALE TUBE home"><span className="brand-mark"><Play size={18} fill="currentColor" /></span><span>ALE<span className="brand-red">TUBE</span><small>REACTIONS</small></span></a>
         <nav className={menuOpen ? 'nav-links open' : 'nav-links'}>{nav.map(item => <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</a>)}</nav>
-        <div className="header-actions">
+        <div className="header-actions">\n          <AuthControls />
           <button className="icon-btn" aria-label="Search" onClick={() => setSearchOpen(!searchOpen)}><Search size={19} /></button>
           <button className="language-btn" onClick={() => setLanguage(language === 'EN' ? 'አማ' : 'EN')}>{language === 'EN' ? 'አማ' : 'EN'} <ChevronDown size={14} /></button>
           <a className="header-subscribe" href="https://www.youtube.com/@Aletubereactions" target="_blank" rel="noreferrer"><Youtube size={16} /> Subscribe</a>
