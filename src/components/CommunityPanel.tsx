@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { addDoc, collection, deleteDoc, doc, getDoc, limit, onSnapshot, orderBy, query, serverTimestamp, where } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, getDoc, setDoc, limit, onSnapshot, orderBy, query, serverTimestamp, where } from 'firebase/firestore'
 import { getFunctions, httpsCallable } from 'firebase/functions'
 import { Heart, Bookmark, Flag, MessageCircle, Send } from 'lucide-react'
-import { auth, db, firebaseConfigured } from '../lib/firebase'
+import { db, firebaseConfigured } from '../lib/firebase'
 import { useAuth } from '../auth/AuthProvider'
 
 type CommentItem = { id: string; authorUid: string; authorName: string; body: string; likeCount: number; parentId: string | null }
@@ -33,7 +33,7 @@ export default function CommunityPanel({ videoId }: { videoId: string }) {
     setBusy(true)
     try {
       if (favorite) await deleteDoc(ref)
-      else await addDoc(collection(db, 'favorites', user.uid, 'items'), { videoId, createdAt: serverTimestamp() }).then(async created => { await deleteDoc(created); await import('firebase/firestore').then(({ setDoc }) => setDoc(ref, { videoId, createdAt: serverTimestamp() })) })
+      else await setDoc(ref, { videoId, createdAt: serverTimestamp() })
       setFavorite(!favorite); setNotice(favorite ? 'Removed from favorites.' : 'Saved to favorites.')
     } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not update favorites.') }
     finally { setBusy(false) }
@@ -55,7 +55,7 @@ export default function CommunityPanel({ videoId }: { videoId: string }) {
   async function likeComment(commentId: string) {
     if (!user) { setNotice('Sign in to like comments.'); return }
     try {
-      const fn = httpsCallable(getFunctions(), 'toggleCommentLike')
+      const fn = httpsCallable(getFunctions(undefined, 'europe-west1'), 'toggleCommentLike')
       await fn({ commentId }); setNotice('Your reaction was saved.')
     } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not like comment.') }
   }
