@@ -25,11 +25,11 @@ export default function AdminDashboard() {
   }, [isAdmin])
 
   async function moderate(commentId: string, status: 'visible' | 'removed') {
-    try { await httpsCallable(getFunctions(), 'moderateComment')({ commentId, status }); setMessage('Comment moderation saved.') }
+    try { await httpsCallable(getFunctions(undefined, 'europe-west1'), 'moderateComment')({ commentId, status }); setMessage('Comment moderation saved.') }
     catch (error) { setMessage(error instanceof Error ? error.message : 'Moderation failed.') }
   }
   async function resolve(reportId: string, status: 'reviewed' | 'dismissed') {
-    try { await httpsCallable(getFunctions(), 'resolveReport')({ reportId, status }); setMessage('Report updated.') }
+    try { await httpsCallable(getFunctions(undefined, 'europe-west1'), 'resolveReport')({ reportId, status }); setMessage('Report updated.') }
     catch (error) { setMessage(error instanceof Error ? error.message : 'Report update failed.') }
   }
   if (!checked) return <div className="admin-panel">Checking administrator access…</div>
