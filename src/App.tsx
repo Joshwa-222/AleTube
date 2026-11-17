@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
 import { ArrowRight, Bell, Check, ChevronDown, Clapperboard, Facebook, Film, Instagram, Menu, Play, Search, Youtube, X } from 'lucide-react'
-import { getVideos, type PublicVideo } from './lib/youtube'
+import { getVideos, youtubeEmbedUrl, youtubeWatchUrl, type PublicVideo } from './lib/youtube'
 
 type Language = 'EN' | 'አማ'
-type Video = { id: number; title: string; category: string; views: string; age: string; image: string; duration: string; featured?: boolean }
+type Video = { id: number; youtubeId?: string; title: string; category: string; views: string; age: string; image: string; duration: string; featured?: boolean }
 
 const videos: Video[] = [
   { id: 1, title: 'The funniest moments you missed 😂', category: 'Comedy', views: '24K', age: '2 days ago', image: 'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76f?auto=format&fit=crop&w=900&q=85', duration: '12:48', featured: true },
@@ -35,6 +35,7 @@ function App() {
   const [subscribed, setSubscribed] = useState(false)
   const [liveVideos, setLiveVideos] = useState<Video[] | null>(null)
   const [catalogueError, setCatalogueError] = useState('')
+  const [playingVideo, setPlayingVideo] = useState<string | null>(null)
   const t = copy[language]
 
   useEffect(() => {
@@ -43,7 +44,7 @@ function App() {
       .then((page) => {
         if (!active) return
         const mapped = page.items.map((item: PublicVideo, index: number) => ({
-          id: index + 1, title: item.title, category: 'YouTube',
+          id: index + 1, youtubeId: item.youtubeId, title: item.title, category: 'YouTube',
           views: new Intl.NumberFormat('en', { notation: 'compact' }).format(item.viewCount || 0),
           age: item.publishedAt ? new Date(typeof item.publishedAt === 'string' ? item.publishedAt : item.publishedAt._seconds * 1000).toLocaleDateString() : '',
           image: item.thumbnailUrl, duration: formatDuration(item.durationSeconds),
@@ -96,10 +97,11 @@ function App() {
           <div className="section-heading"><div><div className="eyebrow"><span /> WATCH SOMETHING GOOD</div><h2>{t.latest}</h2><p>{t.latestSub}</p></div><a className="text-link" href="https://www.youtube.com/@Aletubereactions/videos" target="_blank" rel="noreferrer">{t.viewAll} <ArrowRight size={17} /></a></div>
           <div className="filter-row">{categories.map((item, i) => <button key={item} className={category === item ? 'filter-chip active' : 'filter-chip'} onClick={() => setCategory(item)}>{i === 0 ? t.all : i === 1 ? t.comedy : i === 2 ? t.reactions : t.entertainment}</button>)}</div>
           {catalogueError && <p className="catalogue-note">Showing preview videos. Live YouTube feed is not connected yet: {catalogueError}</p>}
-          <div className="video-grid">{filteredVideos.map((video, i) => <motion.article className="video-card" key={video.id} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * .08 }}><a href="https://www.youtube.com/@Aletubereactions/videos" target="_blank" rel="noreferrer" className="thumb-wrap"><img src={video.image} alt="" /><span className="duration">{video.duration}</span><span className="play-overlay"><Play fill="currentColor" size={22} /></span></a><div className="video-meta"><span className="video-category">{video.category}</span><span>{video.age}</span></div><h3>{video.title}</h3><div className="video-views"><Film size={14} /> {video.views} views</div></motion.article>)}</div>
+          <div className="video-grid">{filteredVideos.map((video, i) => <motion.article className="video-card" key={video.id} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * .08 }}><button type="button" onClick={() => video.youtubeId ? setPlayingVideo(video.youtubeId) : window.open("https://www.youtube.com/@Aletubereactions/videos", "_blank", "noopener,noreferrer")} className="thumb-wrap"><img src={video.image} alt="" /><span className="duration">{video.duration}</span><span className="play-overlay"><Play fill="currentColor" size={22} /></span></button><div className="video-meta"><span className="video-category">{video.category}</span><span>{video.age}</span></div><h3>{video.title}</h3><div className="video-views"><Film size={14} /> {video.views} views</div></motion.article>)}</div>
           {filteredVideos.length === 0 && <div className="empty-state">No videos match your search. Try another keyword.</div>}
         </section>
 
+        {playingVideo && <div className="player-modal" role="dialog" aria-modal="true" aria-label="YouTube video player"><button className="player-close" onClick={() => setPlayingVideo(null)} aria-label="Close player"><X /></button><div className="player-frame"><iframe src={youtubeEmbedUrl(playingVideo)} title="ALE TUBE YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /></div><a className="player-watch-link" href={youtubeWatchUrl(playingVideo)} target="_blank" rel="noreferrer">Open on YouTube ↗</a></div>}
         <section className="shorts-section" id="shorts"><div className="shorts-inner section-wrap"><div className="shorts-copy"><div className="eyebrow"><span /> QUICK ENTERTAINMENT</div><h2>{t.shortsTitle}</h2><p>{t.shortsSub}</p><a className="btn-primary" href="https://www.youtube.com/@Aletubereactions/shorts" target="_blank" rel="noreferrer"><Play size={16} fill="currentColor" /> Watch Shorts <ArrowRight size={16} /></a></div><div className="shorts-visual"><div className="short-card short-card-back"><img src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?auto=format&fit=crop&w=500&q=80" alt="" /></div><div className="short-card short-card-front"><img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76f?auto=format&fit=crop&w=500&q=80" alt="" /><span className="short-play"><Play fill="currentColor" /></span><span className="shorts-label">ALE TUBE SHORTS</span></div><div className="shorts-stamp">FUN<br />EVERY<br />DAY</div></div></div></section>
 
         <section className="about-section section-wrap" id="about"><div className="about-image"><img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76f?auto=format&fit=crop&w=1000&q=85" alt="Live entertainment crowd" /><div className="image-caption"><Clapperboard size={20} /><span>GOOD MOMENTS. GREAT MEMORIES.</span></div></div><div className="about-copy"><div className="eyebrow"><span /> WHO WE ARE</div><h2>{t.aboutTitle}</h2><p>{t.aboutText}</p><div className="about-stats"><div><strong>100%</strong><span>GOOD ENERGY</span></div><div><strong>24/7</strong><span>ENTERTAINMENT</span></div><div><strong>1</strong><span>COMMUNITY</span></div></div></div></section>
