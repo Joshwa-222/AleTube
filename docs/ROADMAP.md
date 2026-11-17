@@ -45,3 +45,35 @@
 - [ ] Add page metadata, sitemap, and social previews
 - [ ] Test accessibility, responsive behavior, performance, and security
 - [ ] Deploy staging, verify, then deploy production
+
+
+## Phase 5 — Community features
+- [x] Add authenticated favorites
+- [x] Add comments and threaded replies with moderation-first publishing
+- [x] Add transactional comment likes through trusted Cloud Functions
+- [x] Add user reports and admin review queue
+- [x] Restrict writes by owner and admin custom claims
+
+## Phase 6 — Administration
+- [x] Add custom-claim protected moderation dashboard
+- [x] Add comment approval/removal and report resolution
+- [x] Add video visibility callable and audit log
+- [ ] Build full user, category, settings, contact inbox, and newsletter management UI
+- [ ] Provision the first admin custom claim using a trusted Firebase Admin SDK process
+
+## Phase 7 — Discovery
+- [x] Add bounded server-side search and category filtering API
+- [x] Add client search and category chips
+- [ ] Build dedicated catalogue and category pages with full pagination
+
+## Phase 8 — SEO and analytics
+- [x] Add page title, description, Open Graph, and Twitter metadata
+- [ ] Add generated sitemap and robots policy for the production domain
+- [ ] Add consent-based first-party analytics dashboard
+
+## Phase 9 — Quality and deployment
+- [ ] Run typecheck/build and fix all CI failures
+- [ ] Add Firestore rules tests and callable-function tests
+- [ ] Configure Firebase project, App Check, secrets, indexes, and production domain
+- [ ] Deploy staging and verify real sign-up, community, moderation, and YouTube sync
+- [ ] Production deployment and post-deploy smoke tests
