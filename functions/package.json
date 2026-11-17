@@ -2,11 +2,14 @@
   "name": "aletube-functions",
   "private": true,
   "main": "lib/index.js",
-  "engines": { "node": "20" },
+  "engines": {
+    "node": "20"
+  },
   "scripts": {
     "build": "tsc",
     "lint": "tsc --noEmit",
-    "deploy": "firebase deploy --only functions"
+    "deploy": "firebase deploy --only functions",
+    "set-admin": "node scripts/set-admin.mjs"
   },
   "dependencies": {
     "firebase-admin": "^13.0.2",
