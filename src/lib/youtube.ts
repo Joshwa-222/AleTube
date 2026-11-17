@@ -32,7 +32,7 @@ async function getJson<T>(url: string): Promise<T> {
   return response.json() as Promise<T>
 }
 
-export function getVideos(options: { limit?: number; cursor?: string; search?: string; category?: string; type?: 'videos' | 'shorts' } = {}): Promise<VideoPage> {
+export async function getVideos(options: { limit?: number; cursor?: string; search?: string; category?: string; type?: 'videos' | 'shorts' } = {}): Promise<VideoPage> {
   return getJson(endpoint('publicVideos', options))
 }
 
