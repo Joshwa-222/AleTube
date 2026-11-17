@@ -12,6 +12,11 @@ All collections and fields below are a starting contract. Validate and version s
 - `status: "active" | "suspended"`
 - Role authority comes from Firebase custom claims, not a client-editable field.
 
+## Profile security
+- Users may read only their own `users/{uid}` document.
+- Users may create a profile with a constrained field allowlist and update only display name, photo URL, preferred language, and update timestamp.
+- Role, admin, suspension authority, and custom claims are controlled by trusted server-side code only.
+
 ## `videos/{videoId}`
 - `youtubeId: string` (unique)
 - `title: string`
