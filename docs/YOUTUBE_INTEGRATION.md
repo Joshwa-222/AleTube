@@ -26,7 +26,7 @@
 ## Data notes and limitations
 - YouTube video IDs are Firestore document IDs, making synchronization idempotent.
 - Metadata includes original YouTube title/description, thumbnails, publish time, duration and public counts.
-- Shorts are initially classified as videos of 60 seconds or less. This is an approximation, not a definitive Shorts signal; review edge cases.
+- Shorts are initially classified as videos of 180 seconds or less. This is an approximation, not a definitive Shorts signal; review edge cases.
 - Category filtering uses `categoryIds`, which may be assigned during the admin phase.
 - Search currently filters within a bounded fetched page. It is not complete catalogue-wide full-text search; add a search index before scaling.
 - The scheduler runs once every 24 hours. A first sync occurs when the scheduled function runs after deployment.
