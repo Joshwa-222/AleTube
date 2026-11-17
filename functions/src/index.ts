@@ -128,4 +128,4 @@ export const relatedVideos = onRequest({
 })
 
 // Community and administrative operations are isolated in a separate module.
-export { toggleCommentLike, moderateComment, setVideoVisibility, resolveReport } from './community.js'
+export { toggleCommentLike, moderateComment, setVideoVisibility, resolveReport, listAdminVideos } from './community.js'
