@@ -1,34 +1,83 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Public catalogue reads are served through HTTPS functions.
-    match /videos/{videoId} {
-      allow read, write: if false;
-    }
+    function signedIn() { return request.auth != null; }
+    function owner(uid) { return signedIn() && request.auth.uid == uid; }
+    function admin() { return signedIn() && request.auth.token.admin == true; }
 
-    // Users can access only their own profile. Role/admin fields are never client writable.
+    match /videos/{videoId} { allow read, write: if false; }
+
     match /users/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow create: if request.auth != null
-        && request.auth.uid == uid
+      allow read: if owner(uid) || admin();
+      allow create: if owner(uid)
         && request.resource.data.keys().hasOnly(['displayName', 'email', 'photoURL', 'preferredLanguage', 'createdAt', 'updatedAt', 'status'])
         && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() >= 2
         && request.resource.data.displayName.size() <= 80
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.preferredLanguage in ['en', 'am']
         && request.resource.data.status == 'active';
-      allow update: if request.auth != null
-        && request.auth.uid == uid
+      allow update: if owner(uid)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL', 'preferredLanguage', 'updatedAt'])
         && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() >= 2
         && request.resource.data.displayName.size() <= 80
         && request.resource.data.preferredLanguage in ['en', 'am'];
       allow delete: if false;
     }
 
-    // All collections remain closed until their own authorization rules are implemented.
-    match /{document=**} {
-      allow read, write: if false;
+    match /favorites/{uid}/items/{videoId} {
+      allow read: if owner(uid);
+      allow create: if owner(uid)
+        && request.resource.data.keys().hasOnly(['videoId', 'createdAt'])
+        && request.resource.data.videoId == videoId;
+      allow delete: if owner(uid);
+      allow update: if false;
     }
+
+    match /comments/{commentId} {
+      allow read: if resource.data.status == 'visible' || (signedIn() && resource.data.authorUid == request.auth.uid) || admin();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['videoId', 'authorUid', 'authorName', 'body', 'parentId', 'createdAt', 'updatedAt', 'status', 'likeCount'])
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.authorName is string
+        && request.resource.data.authorName.size() <= 80
+        && request.resource.data.body is string
+        && request.resource.data.body.size() >= 1
+        && request.resource.data.body.size() <= 1000
+        && request.resource.data.videoId is string
+        && request.resource.data.status == 'pending'
+        && request.resource.data.likeCount == 0;
+      allow update: if signedIn() && resource.data.authorUid == request.auth.uid
+        && resource.data.status == 'pending'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body', 'updatedAt'])
+        && request.resource.data.body is string
+        && request.resource.data.body.size() >= 1
+        && request.resource.data.body.size() <= 1000;
+      allow delete: if (signedIn() && resource.data.authorUid == request.auth.uid && resource.data.status == 'pending') || admin();
+
+      match /likes/{uid} {
+        allow read: if signedIn();
+        allow write: if false; // Like counts are changed only by the trusted callable function.
+      }
+    }
+
+    match /reports/{reportId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['reporterUid', 'targetType', 'targetId', 'reason', 'createdAt', 'status'])
+        && request.resource.data.reporterUid == request.auth.uid
+        && request.resource.data.targetType in ['comment', 'user']
+        && request.resource.data.targetId is string
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() >= 3
+        && request.resource.data.reason.size() <= 500
+        && request.resource.data.status == 'open';
+      allow read: if admin();
+      allow update, delete: if false;
+    }
+
+    match /categories/{categoryId} { allow read: if true; allow write: if admin(); }
+    match /activityLogs/{logId} { allow read: if admin(); allow write: if false; }
+    match /{document=**} { allow read, write: if false; }
   }
 }
