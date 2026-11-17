@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase-admin/app'
-import { FieldValue, getFirestore } from 'firebase-admin/firestore'
+import { FieldPath, FieldValue, getFirestore } from 'firebase-admin/firestore'
 import { onSchedule } from 'firebase-functions/v2/scheduler'
 import { onRequest } from 'firebase-functions/v2/https'
 import { logger } from 'firebase-functions'
@@ -68,7 +68,7 @@ export const publicVideos = onRequest({
   try {
     let query = db.collection('videos').where('visibility', '==', 'public')
       .where('isShort', '==', type === 'shorts')
-      .orderBy('publishedAt', 'desc').orderBy('__name__', 'desc')
+      .orderBy('publishedAt', 'desc').orderBy(FieldPath.documentId(), 'desc')
     if (cursor) query = query.startAfter(cursor.date, cursor.id) as typeof query
     // Fetch a bounded page. Search/category filtering is applied before returning
     // results; the cursor is based on the last scanned document to avoid repeats.
