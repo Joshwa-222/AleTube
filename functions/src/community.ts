@@ -81,3 +81,9 @@ export const resolveReport = onCall({ region: 'europe-west1', maxInstances: 5 },
   })
   return { success: true }
 })
+
+export const listAdminVideos = onCall({ region: 'europe-west1', maxInstances: 5 }, async (request) => {
+  requireAdmin(request)
+  const snapshot = await db.collection('videos').orderBy('publishedAt', 'desc').limit(60).get()
+  return { items: snapshot.docs.map(doc => ({ id: doc.id, title: doc.get('title') || doc.id, visibility: doc.get('visibility') || 'hidden', isShort: doc.get('isShort') === true, thumbnailUrl: doc.get('thumbnailUrl') || '' })) }
+})
