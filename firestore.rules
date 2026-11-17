@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public catalogue reads are served through HTTPS functions.
+    match /videos/{videoId} {
+      allow read, write: if false;
+    }
+    // Deny all other access until each collection has explicit authorization.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
