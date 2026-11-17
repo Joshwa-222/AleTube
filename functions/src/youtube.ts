@@ -39,7 +39,7 @@ function durationToSeconds(duration: string): number {
   return Number(match[1] || 0) * 3600 + Number(match[2] || 0) * 60 + Number(match[3] || 0)
 }
 
-function bestThumbnail(thumbnails: VideoItem['snippet'] extends infer S ? S extends { thumbnails?: infer T } ? T : never : never): string {
+function bestThumbnail(thumbnails: Record<string, { url?: string }> | undefined): string {
   if (!thumbnails) return ''
   return thumbnails.maxres?.url || thumbnails.high?.url || thumbnails.medium?.url || thumbnails.default?.url || ''
 }
@@ -71,7 +71,7 @@ export async function fetchChannelVideos(apiKey: string, handle: string): Promis
   if (!channel?.id || !uploadsPlaylistId) throw new Error(`Could not resolve YouTube channel handle: ${handle}`)
 
   const playlist = await youtubeGet<PlaylistItem>('playlistItems', {
-    part: 'contentDetails', playlistId: uploadsPlaylistId, maxResults: '50',
+    part: 'snippet', playlistId: uploadsPlaylistId, maxResults: '50',
   }, apiKey)
   const ids = (playlist.items || []).map(item => item.snippet?.resourceId?.videoId).filter((id): id is string => Boolean(id))
   if (!ids.length) return []
@@ -97,7 +97,7 @@ export async function fetchChannelVideos(apiKey: string, handle: string): Promis
       tags: (video.snippet?.tags || []).slice(0, 30),
       // Duration is only a useful first-pass classifier. True Shorts classification
       // may require manual review because YouTube Shorts also depends on format.
-      isShort: durationSeconds > 0 && durationSeconds <= 60,
+      isShort: durationSeconds > 0 && durationSeconds <= 180,
       visibility: 'public' as const,
       source: 'youtube' as const,
       syncedAt,
