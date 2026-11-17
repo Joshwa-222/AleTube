@@ -1,9 +1,9 @@
 import { FieldValue, getFirestore } from 'firebase-admin/firestore'
-import { onCall, HttpsError } from 'firebase-functions/v2/https'
+import { onCall, HttpsError, type CallableRequest } from 'firebase-functions/v2/https'
 import { logger } from 'firebase-functions'
 
 const db = getFirestore()
-function requireUser(request: Parameters<Parameters<typeof onCall>[1]>[0]) {
+function requireUser(request: CallableRequest<unknown>) {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in is required.')
   return request.auth.uid
 }
