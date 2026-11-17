@@ -126,3 +126,6 @@ export const relatedVideos = onRequest({
     response.status(500).json({ error: 'related_videos_unavailable' })
   }
 })
+
+// Community and administrative operations are isolated in a separate module.
+export { toggleCommentLike, moderateComment, setVideoVisibility, resolveReport } from './community.js'
