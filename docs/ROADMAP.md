@@ -24,25 +24,26 @@
 - [ ] Improve catalogue-wide search and verify Shorts classification
 
 ## Phase 4 — Firebase identity and profiles
-- [ ] Configure Firebase Authentication
-- [ ] Implement email/password and Google sign-in
-- [ ] Add password reset and email verification
-- [ ] Add profile and favorites
+- [x] Configure Firebase client integration and email/password sign-in and registration
+- [ ] Add Google sign-in, password reset, and email verification
+- [x] Add editable private profiles
+- [x] Add favorites
 
 ## Phase 5 — Community
-- [ ] Add comments, replies, likes, and reports
-- [ ] Add moderation queue and abuse controls
-- [ ] Test ownership and role boundaries
+- [x] Add comments, replies, likes, and reports
+- [x] Add moderation queue and basic abuse controls
+- [x] Enforce owner and admin custom-claim boundaries in Firestore rules
 
 ## Phase 6 — Administration
-- [ ] Add protected admin shell and dashboard
-- [ ] Manage videos, categories, users, comments, and reports
-- [ ] Add settings, contact inbox, and newsletter management
-- [ ] Record administrative activity
+- [x] Add custom-claim protected moderation dashboard
+- [x] Manage video visibility, comments, and reports
+- [ ] Add full category, user, settings, contact inbox, and newsletter management
+- [x] Record administrative activity for moderation actions
 
 ## Phase 7 — Analytics, SEO, and release
 - [ ] Add privacy-conscious first-party site analytics
-- [ ] Add page metadata, sitemap, and social previews
+- [x] Add page title, description, and social preview metadata
+- [ ] Add sitemap and robots policy for the production domain
 - [ ] Test accessibility, responsive behavior, performance, and security
 - [ ] Deploy staging, verify, then deploy production
 
