@@ -79,9 +79,11 @@ export const publicVideos = onRequest({
       const text = `${data.title || ''} ${data.description || ''}`.toLowerCase()
       return (!category || categoryIds.includes(category)) && (!search || text.includes(search.toLowerCase()))
     }).slice(0, limit)
+    const scanLimit = Math.min(limit * 5, 100)
     const lastScanned = snapshot.docs[snapshot.docs.length - 1]
-    const nextCursor = snapshot.size === Math.min(limit * 5, 100) && lastScanned
-      ? encodeCursor(lastScanned.get('publishedAt')?.toDate?.() || lastScanned.get('publishedAt'), lastScanned.id)
+    const cursorDocument = matched.length >= limit ? snapshot.docs.find(doc => doc.id === matched[limit - 1].id) : lastScanned
+    const nextCursor = snapshot.size === scanLimit && cursorDocument
+      ? encodeCursor(cursorDocument.get('publishedAt')?.toDate?.() || cursorDocument.get('publishedAt'), cursorDocument.id)
       : null
     response.set('Cache-Control', 'public, max-age=60, s-maxage=120').json({
       items: matched.map(doc => ({ id: doc.id, ...doc.data() })),
