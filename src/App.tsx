@@ -7,7 +7,7 @@ import CommunityPanel from './components/CommunityPanel'
 import AdminDashboard from './components/AdminDashboard'
 
 type Language = 'EN' | 'አማ'
-type Video = { id: number; youtubeId?: string; title: string; category: string; views: string; age: string; image: string; duration: string; featured?: boolean }
+type Video = { id: number | string; youtubeId?: string; title: string; category: string; views: string; age: string; image: string; duration: string; featured?: boolean }
 
 const videos: Video[] = [
   { id: 1, title: 'The funniest moments you missed 😂', category: 'Comedy', views: '24K', age: '2 days ago', image: 'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76f?auto=format&fit=crop&w=900&q=85', duration: '12:48', featured: true },
@@ -40,6 +40,8 @@ function App() {
   const [subscribed, setSubscribed] = useState(false)
   const [liveVideos, setLiveVideos] = useState<Video[] | null>(null)
   const [catalogueError, setCatalogueError] = useState('')
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [playingVideo, setPlayingVideo] = useState<string | null>(null)
   const t = copy[language]
 
@@ -49,18 +51,38 @@ function App() {
       .then((page) => {
         if (!active) return
         const mapped = page.items.map((item: PublicVideo, index: number) => ({
-          id: index + 1, youtubeId: item.youtubeId, title: item.title, category: 'YouTube',
+          id: item.youtubeId || index + 1, youtubeId: item.youtubeId, title: item.title, category: 'YouTube',
           views: new Intl.NumberFormat('en', { notation: 'compact' }).format(item.viewCount || 0),
           age: item.publishedAt ? new Date(typeof item.publishedAt === 'string' ? item.publishedAt : item.publishedAt._seconds * 1000).toLocaleDateString() : '',
           image: item.thumbnailUrl, duration: formatDuration(item.durationSeconds),
         }))
         setLiveVideos(mapped)
+        setNextCursor(page.nextCursor)
       })
       .catch((error: unknown) => {
         if (active) setCatalogueError(error instanceof Error ? error.message : 'Could not load channel videos.')
       })
     return () => { active = false }
   }, [])
+
+  async function loadMoreVideos() {
+    if (!nextCursor || loadingMore) return
+    setLoadingMore(true)
+    try {
+      const page = await getVideos({ limit: 12, type: 'videos', cursor: nextCursor })
+      const mapped = page.items.map((item: PublicVideo) => ({
+        id: item.youtubeId, youtubeId: item.youtubeId, title: item.title, category: 'YouTube',
+        views: new Intl.NumberFormat('en', { notation: 'compact' }).format(item.viewCount || 0),
+        age: item.publishedAt ? new Date(typeof item.publishedAt === 'string' ? item.publishedAt : item.publishedAt._seconds * 1000).toLocaleDateString() : '',
+        image: item.thumbnailUrl, duration: formatDuration(item.durationSeconds),
+      }))
+      setLiveVideos(current => [...(current || []), ...mapped])
+      setNextCursor(page.nextCursor)
+    } catch (error) {
+      setCatalogueError(error instanceof Error ? error.message : 'Could not load more videos.')
+    } finally { setLoadingMore(false) }
+  }
+
   const categories = ['All', 'Comedy', 'Reactions', 'Entertainment']
   const sourceVideos = liveVideos ?? videos
   const filteredVideos = useMemo(() => sourceVideos.filter(video => (category === 'All' || video.category === category || video.category === 'YouTube') && video.title.toLowerCase().includes(query.toLowerCase())), [sourceVideos, category, query])
@@ -106,6 +128,7 @@ function App() {
           {catalogueError && <p className="catalogue-note">Showing preview videos. Live YouTube feed is not connected yet: {catalogueError}</p>}
           <div className="video-grid">{filteredVideos.map((video, i) => <motion.article className="video-card" key={video.id} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * .08 }}><button type="button" onClick={() => video.youtubeId ? setPlayingVideo(video.youtubeId) : window.open("https://www.youtube.com/@Aletubereactions/videos", "_blank", "noopener,noreferrer")} className="thumb-wrap"><img src={video.image} alt="" /><span className="duration">{video.duration}</span><span className="play-overlay"><Play fill="currentColor" size={22} /></span></button><div className="video-meta"><span className="video-category">{video.category}</span><span>{video.age}</span></div><h3>{video.title}</h3><div className="video-views"><Film size={14} /> {video.views} views</div></motion.article>)}</div>
           {filteredVideos.length === 0 && <div className="empty-state">No videos match your search. Try another keyword.</div>}
+          {nextCursor && <div className="load-more-wrap"><button className="btn-outline" onClick={() => void loadMoreVideos()} disabled={loadingMore}>{loadingMore ? 'Loading…' : 'Load more videos'}</button></div>}
           <AdminDashboard />
         </section>
 
