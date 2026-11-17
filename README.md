@@ -25,6 +25,16 @@ npm run build
 npm run preview
 ```
 
+## Phase 4: Authentication and profiles
+
+1. Create a Firebase project and add a Web App.
+2. Enable **Authentication → Sign-in method → Email/Password** in Firebase Console.
+3. Copy the public Firebase web configuration into your local `.env` file using `.env.example` as the template.
+4. Deploy Firestore rules with `firebase deploy --only firestore:rules`.
+5. Run `npm install` and `npm run build`.
+
+Email/password registration, sign-in, sign-out, auth-state persistence, and private user profiles are implemented. The profile document is stored at `users/{uid}`. Admin privileges are intentionally not assignable from the browser; a trusted server-side process must set Firebase custom claims.
+
 ## YouTube integration setup
 See [Phase 3 setup guide](docs/YOUTUBE_INTEGRATION.md). The YouTube Data API key must be stored as a Firebase Functions secret; never place it in a `VITE_*` variable or commit it.
 
@@ -35,6 +45,6 @@ The frontend live catalogue needs `VITE_PUBLIC_API_BASE_URL` set to the deployed
 - Shorts are initially approximated as videos of 60 seconds or less and need editorial verification.
 - Search currently filters a bounded result page, not the complete catalogue.
 - Firebase project setup, API key configuration, deployment, live channel verification and browser testing are not yet completed.
-- Authentication, favorites, comments, moderation, admin dashboard and production hosting are later phases.
+- Favorites, comments, moderation, admin dashboard and production hosting are later phases.
 
 Channel: https://www.youtube.com/@Aletubereactions
