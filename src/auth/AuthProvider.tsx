@@ -30,12 +30,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!firebaseConfigured || !auth || !db) { setLoading(false); return }
-    return onAuthStateChanged(auth, async (nextUser) => {
+    const firebaseAuth = auth
+    const firestore = db
+    if (!firebaseConfigured || !firebaseAuth || !firestore) { setLoading(false); return }
+    return onAuthStateChanged(firebaseAuth, async (nextUser) => {
       setUser(nextUser)
       if (!nextUser) { setProfile(null); setLoading(false); return }
       try {
-        const profileRef = doc(db, 'users', nextUser.uid)
+        const profileRef = doc(firestore, 'users', nextUser.uid)
         const snapshot = await getDoc(profileRef)
         if (snapshot.exists()) {
           setProfile(snapshot.data() as UserProfile)
