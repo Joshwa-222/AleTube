@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
 import { ArrowRight, Bell, Check, ChevronDown, Clapperboard, Facebook, Film, Instagram, Menu, Play, Search, Youtube, X } from 'lucide-react'
+import { getVideos, type PublicVideo } from './lib/youtube'
 
 type Language = 'EN' | 'አማ'
 type Video = { id: number; title: string; category: string; views: string; age: string; image: string; duration: string; featured?: boolean }
@@ -17,6 +18,14 @@ const copy = {
   'አማ': { home: 'መነሻ', videos: 'ቪዲዮዎች', shorts: 'ሾርትስ', about: 'ስለ እኛ', contact: 'ያግኙን', heroTag: 'የኢትዮጵያ መዝናኛ • እውነተኛ ምላሾች', heroTitle: 'መልካም ጊዜ። እውነተኛ\nምላሾች።', heroText: 'ለሳቅ፣ ለመዝናኛ እና ለማይረሱ ትዝታዎች የእርስዎ ቦታ። የALE TUBE ቤተሰብ ይሁኑ።', explore: 'ቪዲዮዎችን ይመልከቱ', subscribe: 'በYouTube ይከተሉን', latest: 'የቅርብ ጊዜ ቪዲዮዎች', latestSub: 'አዳዲስ ምላሾች እና መዝናኛዎች በአንድ ቦታ።', viewAll: 'ሁሉንም ይመልከቱ', featured: 'ተመራጭ ቪዲዮ', shortsTitle: 'አጭር እና አስደሳች', shortsSub: 'ፈጣን ሳቅ። ትልቅ ምላሽ። ያልተገደበ ደስታ።', aboutTitle: 'ከምላሽ በላይ።', aboutText: 'ALE TUBE REACTIONS ሰዎችን በቀልድ፣ በባህል እና በምንወዳቸው አፍታዎች ያገናኛል። ሁልጊዜ አዲስ የሚዝናኑበት ነገር አለ።', join: 'የቤተሰቡ አካል ይሁኑ', follow: 'ለአዳዲስ ቪዲዮዎች፣ ሾርትስ እና መልካም ስሜት ይከተሉን።', footer: 'ለመዝናኛ ፍቅር ተሰርቷል።', search: 'ቪዲዮ ፈልግ...', all: 'ሁሉም', comedy: 'ቀልድ', reactions: 'ምላሾች', entertainment: 'መዝናኛ' },
 }
 
+function formatDuration(totalSeconds: number): string {
+  const seconds = Math.max(0, Math.floor(totalSeconds || 0))
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const remainder = seconds % 60
+  return hours ? hours + ':' + String(minutes).padStart(2, '0') + ':' + String(remainder).padStart(2, '0') : minutes + ':' + String(remainder).padStart(2, '0')
+}
+
 function App() {
   const [language, setLanguage] = useState<Language>('EN')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -24,9 +33,31 @@ function App() {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
   const [subscribed, setSubscribed] = useState(false)
+  const [liveVideos, setLiveVideos] = useState<Video[] | null>(null)
+  const [catalogueError, setCatalogueError] = useState('')
   const t = copy[language]
+
+  useEffect(() => {
+    let active = true
+    getVideos({ limit: 12, type: 'videos' })
+      .then((page) => {
+        if (!active) return
+        const mapped = page.items.map((item: PublicVideo, index: number) => ({
+          id: index + 1, title: item.title, category: 'YouTube',
+          views: new Intl.NumberFormat('en', { notation: 'compact' }).format(item.viewCount || 0),
+          age: item.publishedAt ? new Date(typeof item.publishedAt === 'string' ? item.publishedAt : item.publishedAt._seconds * 1000).toLocaleDateString() : '',
+          image: item.thumbnailUrl, duration: formatDuration(item.durationSeconds),
+        }))
+        setLiveVideos(mapped)
+      })
+      .catch((error: unknown) => {
+        if (active) setCatalogueError(error instanceof Error ? error.message : 'Could not load channel videos.')
+      })
+    return () => { active = false }
+  }, [])
   const categories = ['All', 'Comedy', 'Reactions', 'Entertainment']
-  const filteredVideos = useMemo(() => videos.filter(video => (category === 'All' || video.category === category) && video.title.toLowerCase().includes(query.toLowerCase())), [category, query])
+  const sourceVideos = liveVideos ?? videos
+  const filteredVideos = useMemo(() => sourceVideos.filter(video => (category === 'All' || video.category === category || video.category === 'YouTube') && video.title.toLowerCase().includes(query.toLowerCase())), [sourceVideos, category, query])
 
   const nav = [{ label: t.home, href: '#home' }, { label: t.videos, href: '#videos' }, { label: t.shorts, href: '#shorts' }, { label: t.about, href: '#about' }, { label: t.contact, href: '#contact' }]
 
@@ -64,6 +95,7 @@ function App() {
         <section className="video-section section-wrap" id="videos">
           <div className="section-heading"><div><div className="eyebrow"><span /> WATCH SOMETHING GOOD</div><h2>{t.latest}</h2><p>{t.latestSub}</p></div><a className="text-link" href="https://www.youtube.com/@Aletubereactions/videos" target="_blank" rel="noreferrer">{t.viewAll} <ArrowRight size={17} /></a></div>
           <div className="filter-row">{categories.map((item, i) => <button key={item} className={category === item ? 'filter-chip active' : 'filter-chip'} onClick={() => setCategory(item)}>{i === 0 ? t.all : i === 1 ? t.comedy : i === 2 ? t.reactions : t.entertainment}</button>)}</div>
+          {catalogueError && <p className="catalogue-note">Showing preview videos. Live YouTube feed is not connected yet: {catalogueError}</p>}
           <div className="video-grid">{filteredVideos.map((video, i) => <motion.article className="video-card" key={video.id} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * .08 }}><a href="https://www.youtube.com/@Aletubereactions/videos" target="_blank" rel="noreferrer" className="thumb-wrap"><img src={video.image} alt="" /><span className="duration">{video.duration}</span><span className="play-overlay"><Play fill="currentColor" size={22} /></span></a><div className="video-meta"><span className="video-category">{video.category}</span><span>{video.age}</span></div><h3>{video.title}</h3><div className="video-views"><Film size={14} /> {video.views} views</div></motion.article>)}</div>
           {filteredVideos.length === 0 && <div className="empty-state">No videos match your search. Try another keyword.</div>}
         </section>
