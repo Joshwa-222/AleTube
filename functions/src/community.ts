@@ -7,7 +7,7 @@ function requireUser(request: CallableRequest<unknown>) {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in is required.')
   return request.auth.uid
 }
-function requireAdmin(request: Parameters<Parameters<typeof onCall>[1]>[0]) {
+function requireAdmin(request: CallableRequest<unknown>) {
   const uid = requireUser(request)
   if (request.auth?.token.admin !== true) throw new HttpsError('permission-denied', 'Administrator access is required.')
   return uid
