@@ -4,6 +4,7 @@ import App from './App'
 import { AuthProvider } from './auth/AuthProvider'
 import './index.css'
 import './auth/auth.css'
+import './community/community.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode><AuthProvider><App /></AuthProvider></React.StrictMode>,
