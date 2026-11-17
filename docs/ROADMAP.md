@@ -73,7 +73,7 @@
 - [ ] Add consent-based first-party analytics dashboard
 
 ## Phase 9 — Quality and deployment
-- [ ] Run typecheck/build and fix all CI failures
+- [x] Run frontend and Firebase Functions builds in GitHub Actions
 - [ ] Add Firestore rules tests and callable-function tests
 - [ ] Configure Firebase project, App Check, secrets, indexes, and production domain
 - [ ] Deploy staging and verify real sign-up, community, moderation, and YouTube sync
