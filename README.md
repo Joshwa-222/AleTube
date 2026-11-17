@@ -1,25 +1,34 @@
-# ALETUBE REACTIONS
+# ALE TUBE REACTIONS
 
-A bilingual (English / Amharic) community website for the ALETUBE REACTIONS YouTube channel.
+Bilingual (Amharic / English) entertainment website for the ALE TUBE REACTIONS YouTube channel.
 
-## Phase 1 status
-Architecture and technical foundation documented. This package is a project starter; Firebase credentials, YouTube API credentials, and deployment are not configured.
+## Frontend foundation
 
-## Planned stack
-- Frontend: React + TypeScript + Vite + Tailwind CSS
-- Backend services: Firebase Authentication, Firestore, Storage, Cloud Functions
-- Video delivery: YouTube Data API v3 + YouTube IFrame Player API
-- Charts: Recharts
-- Hosting: Firebase Hosting (proposed)
+- React 18 + TypeScript + Vite
+- Tailwind CSS foundation with custom responsive styling
+- Motion animations and Lucide icons
+- English / Amharic language toggle
+- Responsive navigation, video category filters and search
+- YouTube channel links for videos and Shorts
 
-## Project documentation
-- [System architecture](docs/ARCHITECTURE.md)
-- [Proposed Firestore data model](docs/DATA_MODEL.md)
-- [Security baseline](docs/SECURITY.md)
-- [Delivery roadmap](docs/ROADMAP.md)
+## Run locally
 
-## Development setup
-The application scaffold will be added in Phase 2. Do not add real credentials to Git. Copy `.env.example` to a local environment file when implementation begins and replace placeholders locally.
+Requires Node.js 20.19+ or 22.12+.
 
-## Important
-YouTube videos are played through the official YouTube IFrame Player. The site will not download or re-host YouTube videos. Site analytics will cover first-party website activity only; it will not claim access to private YouTube Studio analytics.
+```bash
+npm install
+npm run dev
+```
+
+Production build:
+
+```bash
+npm run build
+npm run preview
+```
+
+## Current scope
+
+The homepage currently uses illustrative sample video cards and external image assets. It does not yet fetch live channel videos. YouTube Data API integration, Firebase authentication, Firestore-backed content, admin tools, and deployment remain future phases. Never commit API keys or private credentials.
+
+Channel: https://www.youtube.com/@Aletubereactions
