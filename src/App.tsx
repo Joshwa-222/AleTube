@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
 import { ArrowRight, Bell, Check, ChevronDown, Clapperboard, Facebook, Film, Instagram, Menu, Play, Search, Youtube, X } from 'lucide-react'
 import { getVideos, youtubeEmbedUrl, youtubeWatchUrl, type PublicVideo } from './lib/youtube'\nimport AuthControls from './components/AuthControls'
+import CommunityPanel from './components/CommunityPanel'
+import AdminDashboard from './components/AdminDashboard'
 
 type Language = 'EN' | 'አማ'
 type Video = { id: number; youtubeId?: string; title: string; category: string; views: string; age: string; image: string; duration: string; featured?: boolean }
@@ -98,7 +100,7 @@ function App() {
           <div className="filter-row">{categories.map((item, i) => <button key={item} className={category === item ? 'filter-chip active' : 'filter-chip'} onClick={() => setCategory(item)}>{i === 0 ? t.all : i === 1 ? t.comedy : i === 2 ? t.reactions : t.entertainment}</button>)}</div>
           {catalogueError && <p className="catalogue-note">Showing preview videos. Live YouTube feed is not connected yet: {catalogueError}</p>}
           <div className="video-grid">{filteredVideos.map((video, i) => <motion.article className="video-card" key={video.id} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * .08 }}><button type="button" onClick={() => video.youtubeId ? setPlayingVideo(video.youtubeId) : window.open("https://www.youtube.com/@Aletubereactions/videos", "_blank", "noopener,noreferrer")} className="thumb-wrap"><img src={video.image} alt="" /><span className="duration">{video.duration}</span><span className="play-overlay"><Play fill="currentColor" size={22} /></span></button><div className="video-meta"><span className="video-category">{video.category}</span><span>{video.age}</span></div><h3>{video.title}</h3><div className="video-views"><Film size={14} /> {video.views} views</div></motion.article>)}</div>
-          {filteredVideos.length === 0 && <div className="empty-state">No videos match your search. Try another keyword.</div>}
+          {filteredVideos.length === 0 && <div className="empty-state">No videos match your search. Try another keyword.</div>}\n          {sourceVideos.find(video => video.youtubeId)?.youtubeId && <CommunityPanel videoId={sourceVideos.find(video => video.youtubeId)!.youtubeId!} />}\n          <AdminDashboard />
         </section>
 
         {playingVideo && <div className="player-modal" role="dialog" aria-modal="true" aria-label="YouTube video player"><button className="player-close" onClick={() => setPlayingVideo(null)} aria-label="Close player"><X /></button><div className="player-frame"><iframe src={youtubeEmbedUrl(playingVideo)} title="ALE TUBE YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /></div><a className="player-watch-link" href={youtubeWatchUrl(playingVideo)} target="_blank" rel="noreferrer">Open on YouTube ↗</a></div>}
