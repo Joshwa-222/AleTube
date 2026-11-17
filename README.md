@@ -33,7 +33,7 @@ npm run preview
 4. Deploy Firestore rules with `firebase deploy --only firestore:rules`.
 5. Run `npm install` and `npm run build`.
 
-Email/password registration, sign-in, sign-out, auth-state persistence, and private user profiles are implemented. The profile document is stored at `users/{uid}`. Admin privileges are intentionally not assignable from the browser; a trusted server-side process must set Firebase custom claims.
+Email/password registration, sign-in, sign-out, auth-state persistence, and private user profiles are implemented. The profile document is stored at `users/{uid}`. Admin privileges are intentionally not assignable from the browser. To grant the first administrator, use a trusted machine with Google Application Default Credentials for the correct Firebase project. From `functions/`, set `ADMIN_UID` to the intended account UID and run `npm run set-admin`. Never commit a service-account key. The administrator must sign out and sign in again to refresh the ID token.
 
 ## YouTube integration setup
 See [Phase 3 setup guide](docs/YOUTUBE_INTEGRATION.md). The YouTube Data API key must be stored as a Firebase Functions secret; never place it in a `VITE_*` variable or commit it.
