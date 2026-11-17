@@ -73,16 +73,17 @@ export const publicVideos = onRequest({
     // Fetch a bounded page. Search/category filtering is applied before returning
     // results; the cursor is based on the last scanned document to avoid repeats.
     const snapshot = await query.limit(Math.min(limit * 5, 100)).get()
-    const matched = snapshot.docs.filter(doc => {
+    const matchingDocs = snapshot.docs.filter(doc => {
       const data = doc.data()
       const categoryIds = Array.isArray(data.categoryIds) ? data.categoryIds as string[] : []
       const text = `${data.title || ''} ${data.description || ''}`.toLowerCase()
       return (!category || categoryIds.includes(category)) && (!search || text.includes(search.toLowerCase()))
-    }).slice(0, limit)
+    })
+    const matched = matchingDocs.slice(0, limit)
     const scanLimit = Math.min(limit * 5, 100)
     const lastScanned = snapshot.docs[snapshot.docs.length - 1]
-    const cursorDocument = matched.length >= limit ? snapshot.docs.find(doc => doc.id === matched[limit - 1].id) : lastScanned
-    const nextCursor = snapshot.size === scanLimit && cursorDocument
+    const cursorDocument = matchingDocs.length > limit ? matched[limit - 1] : lastScanned
+    const nextCursor = (matchingDocs.length > limit || snapshot.size === scanLimit) && cursorDocument
       ? encodeCursor(cursorDocument.get('publishedAt')?.toDate?.() || cursorDocument.get('publishedAt'), cursorDocument.id)
       : null
     response.set('Cache-Control', 'public, max-age=60, s-maxage=120').json({
