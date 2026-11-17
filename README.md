@@ -35,6 +35,10 @@ npm run preview
 
 Email/password registration, sign-in, sign-out, auth-state persistence, and private user profiles are implemented. The profile document is stored at `users/{uid}`. Admin privileges are intentionally not assignable from the browser. To grant the first administrator, use a trusted machine with Google Application Default Credentials for the correct Firebase project. From `functions/`, set `ADMIN_UID` to the intended account UID and run `npm run set-admin`. Never commit a service-account key. The administrator must sign out and sign in again to refresh the ID token.
 
+## Firebase Hosting deployment
+
+Firebase Hosting is configured to serve the Vite `dist/` build, route `/api/publicVideos` and `/api/relatedVideos` to the regional Cloud Functions, and send other routes to the SPA. Set `VITE_PUBLIC_API_BASE_URL` to `https://YOUR_PROJECT_ID.web.app/api`, then run `npm run build` and `firebase deploy --only hosting,functions,firestore`. Configure the YouTube key with `firebase functions:secrets:set YOUTUBE_DATA_API_KEY` before deploying functions. Firebase billing may be required for scheduled functions and Cloud Functions deployment.
+
 ## YouTube integration setup
 See [Phase 3 setup guide](docs/YOUTUBE_INTEGRATION.md). The YouTube Data API key must be stored as a Firebase Functions secret; never place it in a `VITE_*` variable or commit it.
 
