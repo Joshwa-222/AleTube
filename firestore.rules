@@ -5,7 +5,28 @@ service cloud.firestore {
     match /videos/{videoId} {
       allow read, write: if false;
     }
-    // Deny all other access until each collection has explicit authorization.
+
+    // Users can access only their own profile. Role/admin fields are never client writable.
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['displayName', 'email', 'photoURL', 'preferredLanguage', 'createdAt', 'updatedAt', 'status'])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() <= 80
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.preferredLanguage in ['en', 'am']
+        && request.resource.data.status == 'active';
+      allow update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL', 'preferredLanguage', 'updatedAt'])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() <= 80
+        && request.resource.data.preferredLanguage in ['en', 'am'];
+      allow delete: if false;
+    }
+
+    // All collections remain closed until their own authorization rules are implemented.
     match /{document=**} {
       allow read, write: if false;
     }
