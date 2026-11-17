@@ -21,7 +21,7 @@ export default function AuthControls() {
       setOpen(false); setPassword('')
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : 'Something went wrong.'
-      setError(message.replace('Firebase: ', '').replace(/\\s*\\(auth\\/[a-z-]+\\)\\.?/i, ''))
+      setError(message.replace('Firebase: ', '').split(' (auth/')[0])
     } finally { setBusy(false) }
   }
 
