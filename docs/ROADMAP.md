@@ -16,10 +16,12 @@
 - [ ] Add loading, empty, and error states
 
 ## Phase 3 — YouTube integration
-- [ ] Configure channel ID and YouTube Data API
-- [ ] Implement trusted synchronization function
-- [ ] Normalize videos and Shorts
-- [ ] Add search, pagination, related content, and IFrame playback
+- [x] Implement server-side YouTube Data API channel lookup and uploads sync
+- [x] Normalize video metadata and initial Shorts classification
+- [x] Add public catalogue and related-video HTTPS endpoints with cursor pagination
+- [x] Add typed frontend API client and YouTube IFrame playback
+- [ ] Configure Firebase project, API secret, deploy functions, and verify live channel data
+- [ ] Improve catalogue-wide search and verify Shorts classification
 
 ## Phase 4 — Firebase identity and profiles
 - [ ] Configure Firebase Authentication
