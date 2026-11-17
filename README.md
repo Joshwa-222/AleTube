@@ -45,6 +45,6 @@ The frontend live catalogue needs `VITE_PUBLIC_API_BASE_URL` set to the deployed
 - Shorts are initially approximated as videos of 60 seconds or less and need editorial verification.
 - Search currently filters a bounded result page, not the complete catalogue.
 - Firebase project setup, API key configuration, deployment, live channel verification and browser testing are not yet completed.
-- Favorites, comments, moderation, admin dashboard and production hosting are later phases.
+- Favorites, moderated comments/replies, likes, reports, and a custom-claim protected moderation dashboard have been implemented in code. Firebase deployment, full live integration verification, additional administrative modules, and production hosting remain.
 
 Channel: https://www.youtube.com/@Aletubereactions
