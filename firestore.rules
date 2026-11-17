@@ -47,7 +47,8 @@ service cloud.firestore {
         && request.resource.data.body.size() <= 1000
         && request.resource.data.videoId is string
         && request.resource.data.status == 'pending'
-        && request.resource.data.likeCount == 0;
+        && request.resource.data.likeCount == 0
+        && (request.resource.data.parentId == null || request.resource.data.parentId is string);
       allow update: if signedIn() && resource.data.authorUid == request.auth.uid
         && resource.data.status == 'pending'
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body', 'updatedAt'])
